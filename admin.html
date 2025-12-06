@@ -1,0 +1,217 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Lumina Admin Pro</title>
+  <link rel="stylesheet" href="styles.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+
+<body class="admin-body">
+
+  <!-- Sidebar -->
+  <aside class="admin-sidebar">
+    <div class="admin-logo">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <circle cx="12" cy="12" r="10"></circle>
+        <path d="M12 16v-4"></path>
+        <path d="M12 8h.01"></path>
+      </svg>
+      Lumina Admin
+    </div>
+
+    <nav class="admin-nav">
+      <div class="admin-nav-item active">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <rect x="3" y="3" width="7" height="7"></rect>
+          <rect x="14" y="3" width="7" height="7"></rect>
+          <rect x="14" y="14" width="7" height="7"></rect>
+          <rect x="3" y="14" width="7" height="7"></rect>
+        </svg>
+        Dashboard
+      </div>
+      <div class="admin-nav-item">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+          <circle cx="9" cy="7" r="4"></circle>
+          <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+          <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+        </svg>
+        Users
+      </div>
+      <div class="admin-nav-item">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline>
+        </svg>
+        Activity
+      </div>
+    </nav>
+
+    <div class="admin-nav-item" id="admin-logout" style="margin-top: auto; color: #ff3b30;">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+        <polyline points="16 17 21 12 16 7"></polyline>
+        <line x1="21" y1="12" x2="9" y2="12"></line>
+      </svg>
+      Logout
+    </div>
+  </aside>
+
+  <!-- Main Content -->
+  <main class="admin-main">
+    <header class="admin-header">
+      <h1 class="admin-title">Dashboard Overview</h1>
+      <button id="back-home" class="btn btn-secondary">Back to Store</button>
+    </header>
+
+    <!-- Stats Cards -->
+    <div class="stats-grid">
+      <div class="stat-card">
+        <span class="stat-label">Total Users</span>
+        <span class="stat-value" id="stat-users">0</span>
+        <div class="stat-trend">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="23 6 13.5 15.5 8.5 10.5 1 18"></polyline>
+            <polyline points="17 6 23 6 23 12"></polyline>
+          </svg>
+          +12% this week
+        </div>
+      </div>
+      <div class="stat-card">
+        <span class="stat-label">Active Sessions</span>
+        <span class="stat-value" id="stat-active">24</span>
+        <div class="stat-trend">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="23 6 13.5 15.5 8.5 10.5 1 18"></polyline>
+            <polyline points="17 6 23 6 23 12"></polyline>
+          </svg>
+          Live
+        </div>
+      </div>
+      <div class="stat-card">
+        <span class="stat-label">Total Revenue</span>
+        <span class="stat-value">$12,450</span>
+        <div class="stat-trend">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="23 6 13.5 15.5 8.5 10.5 1 18"></polyline>
+            <polyline points="17 6 23 6 23 12"></polyline>
+          </svg>
+          +5% vs last month
+        </div>
+      </div>
+    </div>
+
+    <!-- Users Table -->
+    <section class="admin-section">
+      <div class="section-header">
+        <h2 class="section-title">Recent Users</h2>
+        <button class="btn btn-secondary" style="padding: 8px 16px; font-size: 0.85rem;">View All</button>
+      </div>
+      <div id="users-list">Loading users...</div>
+    </section>
+
+    <!-- Activity Table -->
+    <section class="admin-section">
+      <div class="section-header">
+        <h2 class="section-title">Recent Activity</h2>
+      </div>
+      <div id="activity-list">Loading activity...</div>
+    </section>
+
+  </main>
+
+  <script>
+    (async function () {
+      const usersList = document.getElementById('users-list');
+      const activityList = document.getElementById('activity-list');
+      const statUsers = document.getElementById('stat-users');
+      const token = localStorage.getItem('token');
+
+      document.getElementById('back-home').addEventListener('click', () => {
+        window.location.href = '/';
+      });
+      document.getElementById('admin-logout').addEventListener('click', () => {
+        localStorage.removeItem('token');
+        localStorage.removeItem('user');
+        window.location.href = '/';
+      });
+
+      if (!token) {
+        document.querySelector('.admin-main').innerHTML = '<div style="text-align:center; margin-top:100px;"><h2>Access Denied</h2><p>Please login as an admin from the store first.</p><a href="/" class="btn btn-primary" style="margin-top:20px;">Go to Store</a></div>';
+        return;
+      }
+
+      const headers = {
+        'Authorization': 'Bearer ' + token,
+        'Content-Type': 'application/json'
+      };
+
+      // Fetch Users
+      try {
+        const res = await fetch('/api/users', { headers });
+
+        if (res.status === 401 || res.status === 403) {
+          document.querySelector('.admin-main').innerHTML = '<div style="text-align:center; margin-top:100px;"><h2>Access Denied</h2><p>Your account is not an admin or token is invalid.</p><a href="/" class="btn btn-primary" style="margin-top:20px;">Go to Store</a></div>';
+          return;
+        }
+
+        const data = await res.json();
+        if (data.users) {
+          statUsers.textContent = data.users.length;
+
+          if (data.users.length === 0) {
+            usersList.innerHTML = '<p style="color:#86868b; padding:20px;">No users found.</p>';
+          } else {
+            const html = ['<table class="admin-table"><thead><tr><th>Name</th><th>Email</th><th>Role</th><th>Joined</th></tr></thead><tbody>'];
+            data.users.slice(0, 5).forEach(u => {
+              const badgeClass = u.role === 'admin' ? 'admin' : 'user';
+              html.push(`<tr>
+                <td><div style="font-weight:500;">${u.name}</div></td>
+                <td>${u.email}</td>
+                <td><span class="status-badge ${badgeClass}">${u.role}</span></td>
+                <td style="color:#86868b;">${new Date(u.createdAt).toLocaleDateString()}</td>
+              </tr>`);
+            });
+            html.push('</tbody></table>');
+            usersList.innerHTML = html.join('');
+          }
+        }
+      } catch (err) {
+        console.error(err);
+        usersList.innerHTML = '<p>Server error.</p>';
+      }
+
+      // Fetch Activity
+      try {
+        const res = await fetch('/api/activity', { headers });
+        if (res.ok) {
+          const data = await res.json();
+          if (!data.logs || data.logs.length === 0) {
+            activityList.innerHTML = '<p style="color:#86868b; padding:20px;">No activity recorded yet.</p>';
+          } else {
+            const html = ['<table class="admin-table"><thead><tr><th>Action</th><th>User</th><th>Email</th><th>Time</th></tr></thead><tbody>'];
+            data.logs.slice(0, 10).forEach(l => {
+              const actionClass = l.action === 'REGISTER' ? 'log-register' : 'log-login';
+              html.push(`<tr>
+                <td><span class="action-log-badge ${actionClass}">${l.action}</span></td>
+                <td><div style="font-weight:500;">${l.userName}</div></td>
+                <td>${l.userEmail}</td>
+                <td style="color:#86868b;">${new Date(l.timestamp).toLocaleString()}</td>
+              </tr>`);
+            });
+            html.push('</tbody></table>');
+            activityList.innerHTML = html.join('');
+          }
+        }
+      } catch (err) {
+        console.error(err);
+        activityList.innerHTML = '<p>Failed to load activity.</p>';
+      }
+
+    })();
+  </script>
+</body>
+
+</html>
